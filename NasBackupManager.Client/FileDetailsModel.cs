@@ -9,7 +9,7 @@ namespace NasBackupManager.Client
         public string Source { get; set; }
         public string Destination { get; set; }
 
-        public IEnumerable<string> ExcludedExtensions { get; set; }
+        public List<string> ExcludedExtensions { get; set; }
 
         public bool RecurseFolders { get; set; } = true;
         public bool SyncSource { get; set; } = false;

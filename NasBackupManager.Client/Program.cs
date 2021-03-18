@@ -27,12 +27,16 @@ namespace NasBackupManager.Client
             var jsonData = await ExternalFileProcessor.LoadJsonData(jsonFileLocation);
             var backupSettings = JsonConvert.DeserializeObject<List<FileDetailsModel>>(jsonData);
 
+            await logger.WriteLog($"Loaded '{jsonFileLocation}' for backup data");
+
             Console.WriteLine("Processing Files...");
             Console.WriteLine(CreateDivider());
 
             Parallel.ForEach(backupSettings, details =>
             {
                 int copyCount = 0, overwriteCount = 0;
+
+                logger.WriteLog($"Processing {details.Source}");
 
                 System.Text.StringBuilder buffer = new System.Text.StringBuilder();
                 var files = FileManager.GetFiles(details.Source, details.RecurseFolders);
@@ -41,6 +45,9 @@ namespace NasBackupManager.Client
 
                 foreach (var file in files)
                 {
+                    if (details.ExcludedExtensions.Contains(file.Extension))
+                        continue;
+
                     var destination = FileManager.GetFileDetails(file.FullName.Replace(details.Source, details.Destination));
 
                     if (destination != null)
@@ -77,6 +84,8 @@ namespace NasBackupManager.Client
 
                     buffer.AppendLine($"Files Deleted: {deleteCount:00}");
                 }
+
+                logger.WriteLog($"Processed {files.Count} files in {details.Source}");
 
                 buffer.AppendLine();
                 Console.Write(buffer);
