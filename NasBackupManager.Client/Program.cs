@@ -58,9 +58,15 @@ namespace NasBackupManager.Client
                         overwriteCount++;
                     }
 
-                    logger.WriteLog($"Copying '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
+                    var isSuccessful = FileManager.CopyFile(file.FullName, file.DirectoryName.Replace(details.Source, details.Destination));
 
-                    copyCount++;  
+                    if (isSuccessful)
+                    {
+                        logger.WriteLog($"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
+                        copyCount++;
+                    }
+                    else if (destination != null)
+                        overwriteCount--; //Remove Overwrite for any failed copy
                 }
 
                 buffer.AppendLine($"Files Copied: {copyCount - overwriteCount:00}");
@@ -90,6 +96,9 @@ namespace NasBackupManager.Client
                 buffer.AppendLine();
                 Console.Write(buffer);
             });
+
+            Console.WriteLine(CreateDivider());
+            Console.WriteLine("COMPLETE");
         }
 
         private static string CreateDivider()

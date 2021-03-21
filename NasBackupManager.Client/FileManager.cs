@@ -24,12 +24,10 @@ namespace NasBackupManager.Client
                     }
                     catch (Exception ex)
                     {
-                        var orginalTextColour = Console.ForegroundColor;
-
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"[ERROR] Skipped {directory} due to the following:");
 
-                        Console.ForegroundColor = orginalTextColour;
+                        Console.ResetColor();
                         Console.WriteLine($"{ex.Message}");
                         Console.WriteLine("----------------------------------------------------------------");
                     }
@@ -54,8 +52,28 @@ namespace NasBackupManager.Client
         {
             bool isCompleted = true;
 
-            File.Copy(filePath, destinationPath, true);
+            try 
+            {
+                var filename = Path.GetFileName(filePath);
+                var resolvedPath = Path.Combine(destinationPath, filename);
 
+                if (!Directory.Exists(destinationPath))
+                    Directory.CreateDirectory(destinationPath);
+
+                File.Copy(filePath, resolvedPath, true);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[ERROR] Unable to copy '{filePath}' to '{destinationPath}':");
+
+                Console.ResetColor();
+                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine("----------------------------------------------------------------");
+
+                isCompleted = false;
+            }
+            
             return isCompleted;
         }
     }
