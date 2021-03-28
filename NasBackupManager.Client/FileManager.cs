@@ -76,5 +76,34 @@ namespace NasBackupManager.Client
             
             return isCompleted;
         }
+
+        public static bool DeleteFile(string filePath)
+        {
+            bool isCompleted = true;
+
+            try 
+            {
+                var filename = Path.GetFileName(filePath);
+                var parentDirectory = filePath.Replace(filename, "");
+
+                File.Delete(filePath);
+
+                if (Directory.GetFiles(parentDirectory).Length == 0)
+                    Directory.Delete(parentDirectory);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[ERROR] Unable to delete '{filePath}':");
+
+                Console.ResetColor();
+                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine("----------------------------------------------------------------");
+
+                isCompleted = false;
+            }
+
+            return isCompleted;
+        }
     }
 }

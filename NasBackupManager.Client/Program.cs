@@ -59,7 +59,6 @@ namespace NasBackupManager.Client
                     }
 
                     var isSuccessful = FileManager.CopyFile(file.FullName, file.DirectoryName.Replace(details.Source, details.Destination));
-
                     if (isSuccessful)
                     {
                         logger.WriteLog($"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
@@ -83,8 +82,12 @@ namespace NasBackupManager.Client
 
                         if (source == null)
                         {
-                            logger.WriteLog($"Deleting '{file.FullName}' to sync with {file.DirectoryName.Replace(details.Destination, details.Source)}");
-                            deleteCount++;
+                            var isSuccessful = FileManager.DeleteFile(file.FullName);
+                            if (isSuccessful)
+                            {
+                                logger.WriteLog($"Deleted '{file.FullName}' to sync with {file.DirectoryName.Replace(details.Destination, details.Source)}");
+                                deleteCount++;
+                            }
                         }
                     }
 
