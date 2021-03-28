@@ -32,11 +32,9 @@ namespace NasBackupManager.Client
             Console.WriteLine("Processing Files...");
             Console.WriteLine(CreateDivider());
 
-            Parallel.ForEach(backupSettings, details =>
+            Parallel.ForEach(backupSettings, async details =>
             {
                 int copyCount = 0, overwriteCount = 0;
-
-                logger.WriteLog($"Processing {details.Source}");
 
                 System.Text.StringBuilder buffer = new System.Text.StringBuilder();
                 var files = FileManager.GetFiles(details.Source, details.RecurseFolders);
@@ -61,7 +59,7 @@ namespace NasBackupManager.Client
                     var isSuccessful = FileManager.CopyFile(file.FullName, file.DirectoryName.Replace(details.Source, details.Destination));
                     if (isSuccessful)
                     {
-                        logger.WriteLog($"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
+                        await logger.WriteLog($"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
                         copyCount++;
                     }
                     else if (destination != null)
@@ -85,7 +83,7 @@ namespace NasBackupManager.Client
                             var isSuccessful = FileManager.DeleteFile(file.FullName);
                             if (isSuccessful)
                             {
-                                logger.WriteLog($"Deleted '{file.FullName}' to sync with {file.DirectoryName.Replace(details.Destination, details.Source)}");
+                                await logger.WriteLog($"Deleted '{file.FullName}' to sync with {file.DirectoryName.Replace(details.Destination, details.Source)}");
                                 deleteCount++;
                             }
                         }
@@ -94,7 +92,7 @@ namespace NasBackupManager.Client
                     buffer.AppendLine($"Files Deleted: {deleteCount:00}");
                 }
 
-                logger.WriteLog($"Processed {files.Count} files in {details.Source}");
+                await logger.WriteLog($"Processed {files.Count} files in {details.Source}");
 
                 buffer.AppendLine();
                 Console.Write(buffer);

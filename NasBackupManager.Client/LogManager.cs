@@ -45,8 +45,18 @@ namespace NasBackupManager.Client
 
         public async Task WriteLog(string message)
         {
-            using var writer = new StreamWriter(_resolvedFilePath, true);
-            await writer.WriteLineAsync($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.ffff}|{message}");
+            byte[] encodedText = Encoding.Unicode.GetBytes($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.ffff}|{message}{Environment.NewLine}");
+
+            using var writer = new FileStream(
+                _resolvedFilePath,
+                FileMode.Append,
+                FileAccess.Write,
+                FileShare.Write,
+                4096,
+                true);
+
+            writer.Seek(0, SeekOrigin.End);
+            await writer.WriteAsync(encodedText, 0, encodedText.Length);
         }
     }
 }
