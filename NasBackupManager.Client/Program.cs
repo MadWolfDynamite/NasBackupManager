@@ -59,7 +59,11 @@ namespace NasBackupManager.Client
                     var isSuccessful = FileManager.CopyFile(file.FullName, file.DirectoryName.Replace(details.Source, details.Destination));
                     if (isSuccessful)
                     {
-                        await logger.WriteLog($"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]");
+                        var message = destination != null 
+                            ? $"Updated '{file.Name}' [{destination.LastWriteTimeUtc:yyyy-MM-dd HH:mm:ss} --> {file.LastWriteTimeUtc:yyyy-MM-dd HH:mm:ss}]" 
+                            : $"Copied '{file.Name}' [{file.DirectoryName} --> {file.DirectoryName.Replace(details.Source, details.Destination)}]";
+
+                        await logger.WriteLog(message);
                         copyCount++;
                     }
                     else if (destination != null)
